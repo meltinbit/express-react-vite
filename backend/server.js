@@ -46,7 +46,7 @@ app.get('/auth/callback', async (req, res) => {
 		ACTIVE_SHOPS[shopSession.shop] = shopSession
 		console.log({ shopSession })
 		console.log({ ACTIVE_SHOPS })
-		res.redirect(`/?shop=${req.query.shop}`)
+		res.redirect(`/?shop=${req.query.shop}&host=${req.query.host}`)
 	} catch (e) {
 		console.log('auth callback: ', e)
 	}
@@ -54,9 +54,10 @@ app.get('/auth/callback', async (req, res) => {
 
 app.get('/', (req, res) => {
 	if (typeof ACTIVE_SHOPS[req.query.shop] !== 'undefined') {
+		console.log('Authorized!')
 		res.sendFile('index.html', { root: '../frontend/dist' })
 	} else {
-		res.redirect(`/auth?shop=${req.query.shop}`)
+		res.redirect(`/auth?shop=${req.query.shop}&host=${req.query.host}`)
 	}
 })
 
