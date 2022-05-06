@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
-import { Provider } from '@shopify/app-bridge-react'
+import { Provider as AppBridgeProvider } from '@shopify/app-bridge-react'
 
 const config = {
 	apiKey: import.meta.env.VITE_API_KEY,
@@ -10,10 +10,10 @@ const config = {
 }
 
 ReactDOM.render(
-	<Provider config={config}>
+	<AppBridgeProvider config={config}>
 		<React.StrictMode>
 			<App />
 		</React.StrictMode>
-	</Provider>,
+	</AppBridgeProvider>,
 	document.getElementById('root')
 );
