@@ -5,7 +5,7 @@ dotenv.config()
 import { Shopify } from "@shopify/shopify-api"
 
 const { HOST, PORT, API_KEY, API_SECRET, SCOPES } = process.env
-const ACTIVE_SHOPS = {}
+const ACTIVE_SHOPS = {} //must be populated from database or when server restarts it will be lost and the App must be uninstalled and reinstalled again
 
 Shopify.Context.initialize({
 	API_KEY: API_KEY,
@@ -27,7 +27,7 @@ app.get('/auth', async (req, res) => {
 			'/auth/callback',
 			true
 		)
-		console.log({ authRoute })
+		console.log('redirecting to Shopify...')
 		res.redirect(authRoute)
 	} catch (e) {
 		console.log('auth: ', e)
@@ -43,9 +43,8 @@ app.get('/auth/callback', async (req, res) => {
 			req.query
 		)
 
-		ACTIVE_SHOPS[shopSession.shop] = shopSession
-		console.log({ shopSession })
-		console.log({ ACTIVE_SHOPS })
+		ACTIVE_SHOPS[shopSession.shop] = shopSession //must be stored on database or when server restarts it will be lost and the App must be uninstalled and reinstalled again
+		console.log('redirecting to App...')
 		res.redirect(`/?shop=${req.query.shop}&host=${req.query.host}`)
 	} catch (e) {
 		console.log('auth callback: ', e)
