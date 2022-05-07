@@ -1,8 +1,13 @@
+import { Page, Layout, Button } from "@shopify/polaris"
+import Home from "./components/Home"
+
 const App = () => {
 	return (
-		<div>
-			<h1>Express + React + Vite!!!</h1>
-		</div>
+		<Page title="Express + React + Vite!!!">
+			<Layout>
+				<Home />
+			</Layout>
+		</Page>
 	)
 }
 export default App
