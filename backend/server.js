@@ -4,18 +4,36 @@ dotenv.config()
 
 import { Shopify } from "@shopify/shopify-api"
 
-const { HOST, PORT, API_KEY, API_SECRET, SCOPES } = process.env
-const ACTIVE_SHOPS = {} //must be populated from database or when server restarts it will be lost and the App must be uninstalled and reinstalled again
+import {
+	storeCallback,
+	loadCallback,
+	deleteCallback,
+	activeShops,
+	uninstallShop,
+	isPayingStore,
+} from "./libs/mysql/database.js"
+
+const { HOST, PORT, API_KEY, API_SECRET, SCOPES, API_VERSION } = process.env
+
+
+const ACTIVE_SHOPS = await activeShops(); //must be populated from database or when server restarts it will be lost and the App must be uninstalled and reinstalled again
 
 Shopify.Context.initialize({
 	API_KEY: API_KEY,
 	API_SECRET_KEY: API_SECRET,
 	SCOPES: SCOPES,
 	HOST_NAME: HOST,
-	IS_EMBEDDED_APP: true
+	IS_EMBEDDED_APP: true,
+	API_VERSION: API_VERSION,
+	SESSION_STORAGE: new Shopify.Session.CustomSessionStorage(
+		storeCallback,
+		loadCallback,
+		deleteCallback
+	)
 })
 
 const app = express()
+app.use(express.json())
 
 //build URL to send customer to Shopify install page
 app.get('/auth', async (req, res) => {
@@ -49,6 +67,19 @@ app.get('/auth/callback', async (req, res) => {
 	} catch (e) {
 		console.log('auth callback: ', e)
 	}
+})
+
+app.post('/graphql', async (req, res) => {
+	//TODO it requires a middleware to validate the JWT
+	const session = await Shopify.Utils.loadCurrentSession(req, res);
+	const client = new Shopify.Clients.Graphql(session.shop, session.accessToken);
+	const response = await client.query({
+		data: {
+			query: req.body.query,
+			variables: req.body.variables
+		}
+	});
+	res.send(response)
 })
 
 app.get('/', (req, res) => {
